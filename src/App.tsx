@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
+import './Function.tsx';
+import './UI.tsx';
 
 // 日付を 'YYYY-MM-DD' 形式の文字列に変換するヘルパー関数
 const formatDate = (date) => {
