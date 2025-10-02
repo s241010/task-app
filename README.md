@@ -2,13 +2,9 @@
 
 ルートディレクトリの**src**ファイルの中(App.tsx と同じ階層)に
 
-**機能班:function.tsx/.css 
+機能班:function.tsx/.css 
 
 UI班:style.css/.tsx 
-
-グループワーク班:groupwork.tsx/.css
-
-アルゴリズム班:algorithm.tsx/.css**
 
 みたいな感じで追加して
 
