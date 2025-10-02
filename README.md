@@ -1,3 +1,14 @@
+#ファイル追加やりかた
+
+ルートディレクトリの**src**ファイルの中(App.tsx と同じ階層)に
+**機能班:function.tsx/.css 
+UI班:style.css/.tsx 
+グループワーク班:groupwork.tsx/.css
+アルゴリズム班:algorithm.tsx/.css**
+みたいな感じで追加して
+できたらmainにコミットしといて
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
