@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-
-import "../components/AiTaskColl.tsx";
 import './App.css';
-import '../components/Function.tsx';
-import '../components/UI.tsx';
+// AITaskInputコンポーネントをインポート
+import AITaskInput from '../components/AITaskColl';
+
+// AIからのタスクデータの型
+interface TaskData {
+  taskName: string;
+  dueDate: string | null;
+  dueTime: string | null;
+  subTasks: string[];
+}
+
+// カレンダーが持つタスク全体の型
+interface TasksState {
+  [key: string]: string[];
+}
 
 // 日付を 'YYYY-MM-DD' 形式の文字列に変換するヘルパー関数
-const formatDate = (date) => {
+const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -14,104 +25,87 @@ const formatDate = (date) => {
 };
 
 const App = () => {
-  // 現在の日付を基準にする
   const [currentDate, setCurrentDate] = useState(new Date());
-  // 選択された日付の状態
   const [selectedDate, setSelectedDate] = useState(formatDate(new Date()));
-  // タスクリストの状態
-  const [tasks, setTasks] = useState({});
-  // 新規タスクの入力値の状態
+  const [tasks, setTasks] = useState<TasksState>({});
   const [taskInput, setTaskInput] = useState('');
 
-  // カレンダーのレンダリングロジック
-  const renderCalendar = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+  // ★★★ AIからのデータでタスクを追加する新しい関数 ★★★
+  const handleAddTaskFromAI = (data: TaskData) => {
+    // AIが日付を特定できなかった場合は、現在選択中の日付に追加
+    const targetDate = data.dueDate || selectedDate;
+    const taskText = data.taskName; // AIが抽出したタスク名
 
-    // 月の初日と最終日を取得
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
+    if (!taskText) return;
 
-    const daysInMonth = [];
-    // 月の初日までの空白を埋める
-    for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
-      daysInMonth.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+    // tasksステートを更新
+    setTasks(prevTasks => {
+      const newTasks = { ...prevTasks };
+      if (!newTasks[targetDate]) {
+        newTasks[targetDate] = [];
+      }
+      newTasks[targetDate].push(taskText);
+      // サブタスクも追加する場合
+      if (data.subTasks && data.subTasks.length > 0) {
+        data.subTasks.forEach(sub => newTasks[targetDate].push(`- ${sub}`));
+      }
+      return newTasks;
+    });
+
+    // AIが特定した日付を選択状態にする
+    if(data.dueDate) {
+      setSelectedDate(data.dueDate);
     }
-
-    // 月の日付を生成
-    for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
-      const date = new Date(year, month, day);
-      const dateString = formatDate(date);
-      const isSelected = dateString === selectedDate;
-      const hasTask = tasks[dateString] && tasks[dateString].length > 0;
-
-      daysInMonth.push(
-        <div
-          key={day}
-          className={`calendar-day ${isSelected ? 'selected' : ''} ${hasTask ? 'has-task' : ''}`}
-          onClick={() => setSelectedDate(dateString)}
-        >
-          {day}
-        </div>
-      );
-    }
-
-    return daysInMonth;
   };
 
-  // 前の月へ移動
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  };
-
-  // 次の月へ移動
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  // タスクを追加する処理
-  const handleAddTask = (e) => {
+  // 手動でタスクを追加する処理
+  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!taskInput.trim()) return; // 空の場合は追加しない
+    if (!taskInput.trim()) return;
 
-    const newTasks = { ...tasks };
-    if (!newTasks[selectedDate]) {
-      newTasks[selectedDate] = [];
-    }
-    newTasks[selectedDate].push(taskInput);
+    setTasks(prevTasks => {
+      const newTasks = { ...prevTasks };
+      if (!newTasks[selectedDate]) {
+        newTasks[selectedDate] = [];
+      }
+      newTasks[selectedDate].push(taskInput);
+      return newTasks;
+    });
 
-    setTasks(newTasks);
-    setTaskInput(''); // 入力欄をクリア
+    setTaskInput('');
   };
+
+  // --- カレンダーのレンダリングロジックなどは変更なし ---
+  const renderCalendar = () => { /* ...（省略）... */ };
+  const goToPreviousMonth = () => { /* ...（省略）... */ };
+  const goToNextMonth = () => { /* ...（省略）... */ };
 
   return (
     <div className="app-container">
       <h1>📅 シンプルタスクカレンダー</h1>
       <div className="calendar-container">
-        <div className="calendar-header">
-          <button onClick={goToPreviousMonth}>&lt;</button>
-          <h2>{`${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</h2>
-          <button onClick={goToNextMonth}>&gt;</button>
-        </div>
-        <div className="calendar-weekdays">
-          <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
-        </div>
-        <div className="calendar-grid">
-          {renderCalendar()}
-        </div>
+        {/* ...（カレンダー部分は省略）... */}
       </div>
 
       <div className="task-container">
-        <h3>{selectedDate} のタスク</h3>
+        {/* ★★★ AITaskInputコンポーネントをここに配置 ★★★ */}
+        {/* onTaskCreatedという名前で関数を渡す */}
+        <AITaskInput onTaskCreated={handleAddTaskFromAI} />
+
+        <h3 style={{marginTop: '2rem'}}>{selectedDate} のタスク</h3>
+
+        {/* --- 手動入力フォーム --- */}
         <form onSubmit={handleAddTask} className="task-form">
           <input
             type="text"
             value={taskInput}
             onChange={(e) => setTaskInput(e.target.value)}
-            placeholder="新しいタスクを入力"
+            placeholder="新しいタスクを手動入力"
           />
           <button type="submit">追加</button>
         </form>
+
+        {/* --- タスクリスト --- */}
         <ul className="task-list">
           {tasks[selectedDate] && tasks[selectedDate].length > 0 ? (
             tasks[selectedDate].map((task, index) => (

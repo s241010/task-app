@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
-import './App.css';
 
-function AITaskInput() {
+// AIからのレスポンスデータの型を定義
+interface TaskData {
+  taskName: string;
+  dueDate: string | null;
+  dueTime: string | null;
+  subTasks: string[];
+}
+
+// 親から受け取るPropsの型を定義
+interface AITaskInputProps {
+  onTaskCreated: (taskData: TaskData) => void;
+}
+
+// propsを受け取るように変更 ({ onTaskCreated })
+function AITaskColl({ onTaskCreated }: AITaskInputProps) {
   const [text, setText] = useState('');
-  const [taskData, setTaskData] = useState(null);
+  // useStateに型を指定
+  const [taskData, setTaskData] = useState<TaskData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setTaskData(null);
 
     try {
-      // 自作のバックエンドAPIエンドポイントを呼び出す
       const response = await fetch('/api/generateTask', {
         method: 'POST',
         headers: {
@@ -25,12 +38,16 @@ function AITaskInput() {
         throw new Error('API request failed');
       }
 
-      const data = await response.json();
-      setTaskData(data); // AIからのレスポンスをstateに保存
+      const data: TaskData = await response.json();
+      setTaskData(data);
       console.log('AI Response:', data);
 
-      // ここで、dataを使ってカレンダーにタスクを追加する処理を呼び出す
-      // e.g., addTask({ name: data.taskName, date: data.dueDate, ... })
+      // ★★★ ここが重要 ★★★
+      // 親から渡された関数を実行して、解析結果を渡す
+      onTaskCreated(data);
+      
+      // 入力欄をクリア
+      setText('');
 
     } catch (error) {
       console.error('Error:', error);
@@ -46,33 +63,23 @@ function AITaskInput() {
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="例: 明日の夜7時に母に電話する"
+          placeholder="AIでタスクを自動入力"
           disabled={isLoading}
         />
         <button type="submit" disabled={isLoading}>
-          {isLoading ? '解析中...' : 'AIでタスク追加'}
+          {isLoading ? '解析中...' : 'AIで追加'}
         </button>
       </form>
 
       {taskData && (
-        <div style={{ marginTop: '20px', background: '#f0f0f0', padding: '10px' }}>
+        <div style={{ marginTop: '20px', background: '#f0f0f0', padding: '10px', borderRadius: '8px' }}>
           <h4>AIによる解析結果:</h4>
           <p><strong>タスク名:</strong> {taskData.taskName}</p>
           <p><strong>期限日:</strong> {taskData.dueDate || '未設定'}</p>
-          <p><strong>時間:</strong> {taskData.dueTime || '未設定'}</p>
-          {taskData.subTasks && taskData.subTasks.length > 0 && (
-            <>
-              <strong>サブタスク案:</strong>
-              <ul>
-                {taskData.subTasks.map((sub, index) => <li key={index}>{sub}</li>)}
-              </ul>
-            </>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-export default AITaskInput;
-export default App;
+export default AITaskColl;
