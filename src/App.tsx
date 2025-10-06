@@ -75,26 +75,76 @@ const App = () => {
     setTaskInput('');
   };
 
-  // --- カレンダーのレンダリングロジックなどは変更なし ---
-  const renderCalendar = () => { /* ...（省略）... */ };
-  const goToPreviousMonth = () => { /* ...（省略）... */ };
-  const goToNextMonth = () => { /* ...（省略）... */ };
+  const renderCalendar = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // 月の初日と最終日を取得
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+
+    const daysInMonth = [];
+    // 月の初日までの空白を埋める
+    for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
+      daysInMonth.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+    }
+
+    // 月の日付を生成
+    for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+      const date = new Date(year, month, day);
+      const dateString = formatDate(date);
+      const isSelected = dateString === selectedDate;
+      const hasTask = tasks[dateString] && tasks[dateString].length > 0;
+
+      daysInMonth.push(
+        <div
+          key={day}
+          className={`calendar-day ${isSelected ? 'selected' : ''} ${hasTask ? 'has-task' : ''}`}
+          onClick={() => setSelectedDate(dateString)}
+        >
+          {day}
+        </div>
+      );
+    }
+
+    return daysInMonth;
+  };
+
+  // 前の月へ移動
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  // 次の月へ移動
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
 
   return (
     <div className="app-container">
       <h1>📅 シンプルタスクカレンダー</h1>
+      
+      {/* --- ここからカレンダー本体 --- */}
       <div className="calendar-container">
-        {/* ...（カレンダー部分は省略）... */}
+        <div className="calendar-header">
+          <button onClick={goToPreviousMonth}>&lt;</button>
+          <h2>{`${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</h2>
+          <button onClick={goToNextMonth}>&gt;</button>
+        </div>
+        <div className="calendar-weekdays">
+          <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+        </div>
+        <div className="calendar-grid">
+          {renderCalendar()}
+        </div>
       </div>
+      {/* --- ここまでカレンダー本体 --- */}
 
       <div className="task-container">
-        {/* ★★★ AITaskInputコンポーネントをここに配置 ★★★ */}
-        {/* onTaskCreatedという名前で関数を渡す */}
         <AITaskInput onTaskCreated={handleAddTaskFromAI} />
 
         <h3 style={{marginTop: '2rem'}}>{selectedDate} のタスク</h3>
 
-        {/* --- 手動入力フォーム --- */}
         <form onSubmit={handleAddTask} className="task-form">
           <input
             type="text"
@@ -105,7 +155,6 @@ const App = () => {
           <button type="submit">追加</button>
         </form>
 
-        {/* --- タスクリスト --- */}
         <ul className="task-list">
           {tasks[selectedDate] && tasks[selectedDate].length > 0 ? (
             tasks[selectedDate].map((task, index) => (
