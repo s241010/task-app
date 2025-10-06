@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import "../components/AiTaskColl.tsx";
 import './App.css';
 
 // 日付を 'YYYY-MM-DD' 形式の文字列に変換するヘルパー関数
@@ -121,5 +123,6 @@ const App = () => {
     </div>
   );
 };
+
 
 export default App;
