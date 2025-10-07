@@ -1,0 +1,33 @@
+import { StyleSheet } from "react-native";
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  main: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  screenText: {
+    fontSize: 24,
+  },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    height: 70,
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+    backgroundColor: "#f9f9f9",
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: "center",
+  },
+  icon: {
+    width: 30,
+    height: 30,
+  },
+});
