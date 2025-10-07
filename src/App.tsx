@@ -1,125 +1,53 @@
-import React, { useState } from 'react';
-import './App.css';
+import React, { useState } from "react";
+import { View, Image, TouchableOpacity, Text } from "react-native";
+import styles from "./styles";
 
-// 日付を 'YYYY-MM-DD' 形式の文字列に変換するヘルパー関数
-const formatDate = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+export default function App() {
+  const [activeTab, setActiveTab] = useState("calendar");
 
-const App = () => {
-  // 現在の日付を基準にする
-  const [currentDate, setCurrentDate] = useState(new Date());
-  // 選択された日付の状態
-  const [selectedDate, setSelectedDate] = useState(formatDate(new Date()));
-  // タスクリストの状態
-  const [tasks, setTasks] = useState({});
-  // 新規タスクの入力値の状態
-  const [taskInput, setTaskInput] = useState('');
+  const tabs = [
+    { key: "calendar", black: require("./assets/calendar_black.png"), blue: require("./assets/calendar_blue.png"), label: "カレンダー" },
+    { key: "groupwork", black: require("./assets/groupwork_black.png"), blue: require("./assets/groupwork_blue.png"), label: "グループ" },
+    { key: "task", black: require("./assets/task_black.png"), blue: require("./assets/task_blue.png"), label: "タスク" },
+    { key: "chat", black: require("./assets/chat_black.png"), blue: require("./assets/chat_blue.png"), label: "チャット" },
+    { key: "setting", black: require("./assets/setting_black.png"), blue: require("./assets/setting_blue.png"), label: "設定" },
+  ];
 
-  // カレンダーのレンダリングロジック
-  const renderCalendar = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    // 月の初日と最終日を取得
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-
-    const daysInMonth = [];
-    // 月の初日までの空白を埋める
-    for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
-      daysInMonth.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+  const renderScreen = () => {
+    switch (activeTab) {
+      case "calendar":
+        return <Text style={styles.screenText}>📅 カレンダー画面</Text>;
+      case "groupwork":
+        return <Text style={styles.screenText}>👥 グループワーク画面</Text>;
+      case "task":
+        return <Text style={styles.screenText}>✅ タスク画面</Text>;
+      case "chat":
+        return <Text style={styles.screenText}>💬 チャット画面</Text>;
+      case "setting":
+        return <Text style={styles.screenText}>⚙️ 設定画面</Text>;
+      default:
+        return null;
     }
-
-    // 月の日付を生成
-    for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
-      const date = new Date(year, month, day);
-      const dateString = formatDate(date);
-      const isSelected = dateString === selectedDate;
-      const hasTask = tasks[dateString] && tasks[dateString].length > 0;
-
-      daysInMonth.push(
-        <div
-          key={day}
-          className={`calendar-day ${isSelected ? 'selected' : ''} ${hasTask ? 'has-task' : ''}`}
-          onClick={() => setSelectedDate(dateString)}
-        >
-          {day}
-        </div>
-      );
-    }
-
-    return daysInMonth;
-  };
-
-  // 前の月へ移動
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
-  };
-
-  // 次の月へ移動
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  // タスクを追加する処理
-  const handleAddTask = (e) => {
-    e.preventDefault();
-    if (!taskInput.trim()) return; // 空の場合は追加しない
-
-    const newTasks = { ...tasks };
-    if (!newTasks[selectedDate]) {
-      newTasks[selectedDate] = [];
-    }
-    newTasks[selectedDate].push(taskInput);
-
-    setTasks(newTasks);
-    setTaskInput(''); // 入力欄をクリア
   };
 
   return (
-    <div className="app-container">
-      <h1>📅 シンプルタスクカレンダー</h1>
-      <div className="calendar-container">
-        <div className="calendar-header">
-          <button onClick={goToPreviousMonth}>&lt;</button>
-          <h2>{`${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</h2>
-          <button onClick={goToNextMonth}>&gt;</button>
-        </div>
-        <div className="calendar-weekdays">
-          <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
-        </div>
-        <div className="calendar-grid">
-          {renderCalendar()}
-        </div>
-      </div>
-
-      <div className="task-container">
-        <h3>{selectedDate} のタスク</h3>
-        <form onSubmit={handleAddTask} className="task-form">
-          <input
-            type="text"
-            value={taskInput}
-            onChange={(e) => setTaskInput(e.target.value)}
-            placeholder="新しいタスクを入力"
-          />
-          <button type="submit">追加</button>
-        </form>
-        <ul className="task-list">
-          {tasks[selectedDate] && tasks[selectedDate].length > 0 ? (
-            tasks[selectedDate].map((task, index) => (
-              <li key={index}>{task}</li>
-            ))
-          ) : (
-            <p>この日のタスクはありません。</p>
-          )}
-        </ul>
-      </div>
-    </div>
+    <View style={styles.container}>
+      <View style={styles.main}>{renderScreen()}</View>
+      <View style={styles.bottomNav}>
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            style={styles.tabButton}
+            onPress={() => setActiveTab(tab.key)}
+          >
+            <Image
+              source={activeTab === tab.key ? tab.blue : tab.black}
+              style={styles.icon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
   );
-};
-
-export default App;
+}
