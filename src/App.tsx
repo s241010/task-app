@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 // AITaskInputコンポーネントをインポート
-import AITaskInput from '../components/AITaskColl';
+import AITaskInput from '../components/AI/AITaskColl';
 
 // AIからのタスクデータの型
 interface TaskData {
