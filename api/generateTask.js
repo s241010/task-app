@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.AIzaSyAFKBLrIdGKIILK3deHeZnKo9ZvzQHKKrE);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
