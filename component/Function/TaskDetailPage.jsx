@@ -37,14 +37,14 @@ function TaskDetailPage({ task, onBack }) {
           margin-bottom: 20px;
           padding: 8px 16px;
           border: 1px solid #d1d5db;
-          background: white;
+          background: #3b82f6;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s;
         }
 
         .back-btn:hover {
-          background: #f3f4f6;
+          background: blue;
         }
 
         .task-detail-container {
