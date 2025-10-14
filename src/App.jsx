@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import './style.css'
-import NavigationBar from './components/NavigationBar'
-import TaskPage from './pages/TaskPage'
-import ChatPage from './pages/ChatPage'
-import CalendarPage from './pages/CalendarPage'
-import GroupWorkPage from './pages/GroupWorkPage'
-import SettingsPage from './pages/SettingsPage'
-import TaskDetailPage from './pages/TaskDetailPage'
-import { formatDateKey } from './utils/dateUtils'
+import NavigationBar from '../components/Function/NavigationBar'
+import TaskPage from '../components/Function/TaskPage'
+import ChatPage from '../components/Function/ChatPage'
+import CalendarPage from '../components/Function/CalendarPage'
+import GroupWorkPage from '../components/Function/GroupWorkPage'
+import SettingsPage from '../components/Function/SettingsPage'
+import TaskDetailPage from '../components/Function/TaskDetailPage'
+import { formatDateKey } from '../components/Function/dateUtils'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('calendar')
