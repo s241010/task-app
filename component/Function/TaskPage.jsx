@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { formatDateKey } from '../utils/dateUtils'
+import { formatDateKey } from './dateUtils'
 
 function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
   const [showModal, setShowModal] = useState(false)

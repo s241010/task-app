@@ -1,6 +1,6 @@
-import CalendarHeader from '../components/CalendarHeader'
-import CalendarGrid from '../components/CalendarGrid'
-import { formatDateKey, formatDateDisplay } from '../utils/dateUtils'
+import CalendarHeader from './CalendarHeader'
+import CalendarGrid from './CalendarGrid'
+import { formatDateKey, formatDateDisplay } from './dateUtils'
 
 function CalendarPage({
   currentMonth,
