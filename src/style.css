@@ -6,6 +6,9 @@ body {
 }
 
 #root {
+  margin: 0;/*追加*/
+  padding: 0;/*追加*/
+  width: 100%;/*追加*/
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -40,9 +43,10 @@ body {
 .navigation-bar {
   position: fixed;
   bottom: 0;
-  left: 50%;
+  left: 0;/*変更*/
+  right: 0;/*追加*/
   transform: translateX(-50%);
-  max-width: 600px;
+  /*max-width: 600px; いらないかも*/
   width: 100%;
   display: flex;
   justify-content: space-around;
@@ -50,11 +54,13 @@ body {
   border-top: 1px solid #ddd;
   padding: 10px 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;/*追加*/
 }
 
 .nav-button {
   flex: 1;
-  padding: 10px;
+  text-align: center;/*追加*/
+  padding: 10px 0;
   border: none;
   background: none;
   cursor: pointer;
@@ -297,4 +303,11 @@ button:disabled {
 .form-buttons button:last-child {
   background-color: #f44336;
   color: white;
+}
+
+@media (max-width: 480px) {   /*追加*/
+  .nav-button {
+    font-size: 12px;     
+    padding: 12px 0;    
+  }
 }
