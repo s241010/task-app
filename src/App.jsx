@@ -16,27 +16,38 @@ function App() {
   const [tasks, setTasks] = useState({})
   const [selectedTask, setSelectedTask] = useState(null)
 
-  // --- タスク追加処理 ---
+  // --- 🟢 タスク追加処理 ---
   const handleAddTask = async (taskData) => {
-    if (!selectedDate) return
-    const key = formatDateKey(selectedDate)
+    if (!taskData.startDate || !taskData.endDate) {
+      alert('開始日と終了日を設定してください')
+      return
+    }
 
-    // DBにも送信（API用意済み想定）
+    const start = new Date(taskData.startDate)
+    const end = new Date(taskData.endDate)
+    const newTasks = { ...tasks }
+
+    // 🔁 startDate〜endDateの範囲すべての日に登録
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const key = formatDateKey(new Date(d))
+      if (!newTasks[key]) newTasks[key] = []
+
+      // 🟡 各日に独立したオブジェクトを push（参照切り離し）
+      newTasks[key].push({ ...taskData })
+    }
+
+    // --- 🔵 DB送信（オプション） ---
     try {
       await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: key, ...taskData }),
+        body: JSON.stringify(taskData),
       })
     } catch (e) {
       console.warn('DB保存エラー:', e)
     }
 
-    // ローカル反映
-    setTasks(prev => ({
-      ...prev,
-      [key]: [...(prev[key] || []), taskData]
-    }))
+    setTasks(newTasks)
   }
 
   // --- カレンダー制御 ---
@@ -52,9 +63,7 @@ function App() {
     setCurrentMonth(newDate)
   }
 
-  const handleSelectDate = (date) => {
-    setSelectedDate(date)
-  }
+  const handleSelectDate = (date) => setSelectedDate(date)
 
   const handleTaskClick = (task) => {
     setSelectedTask(task)
@@ -64,6 +73,18 @@ function App() {
   const handleBackFromDetail = () => {
     setSelectedTask(null)
     setCurrentPage('tasks')
+  }
+
+  // --- ⏱ タスク時間を更新する（ストップウォッチ用） ---
+  const handleUpdateTaskTime = (task, elapsedTime) => {
+    setTasks(prev => {
+      const updated = { ...prev }
+      const key = task.startDate
+      updated[key] = updated[key].map(t =>
+        t.title === task.title ? { ...t, loggedTime: elapsedTime } : t
+      )
+      return updated
+    })
   }
 
   // --- ページ切り替え ---
@@ -83,6 +104,7 @@ function App() {
           <TaskDetailPage
             task={selectedTask}
             onBack={handleBackFromDetail}
+            onUpdateTaskTime={handleUpdateTaskTime}
           />
         )
       case 'chat':
