@@ -1,21 +1,51 @@
-function TaskDetailPage({ task, onBack }) {
-  if (!task) return <p>タスクが見つかりません</p>
+import { useState, useRef, useEffect } from 'react'
+
+function TaskDetailPage({ task, onBack, onUpdateTask }) {
+  const [elapsedTime, setElapsedTime] = useState(task.loggedTime || 0)
+  const [isRunning, setIsRunning] = useState(false)
+  const timerRef = useRef(null)
+
+  // タイマー動作
+  useEffect(() => {
+    if (isRunning) {
+      timerRef.current = setInterval(() => {
+        setElapsedTime(prev => prev + 1)
+      }, 1000)
+    } else {
+      clearInterval(timerRef.current)
+    }
+    return () => clearInterval(timerRef.current)
+  }, [isRunning])
+
+  // 時間のフォーマット
+  const formatTime = (seconds) => {
+    const h = String(Math.floor(seconds / 3600)).padStart(2, '0')
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0')
+    const s = String(seconds % 60).padStart(2, '0')
+    return `${h}:${m}:${s}`
+  }
+
+  // --- 時間を記録する処理 ---
+  const handleSaveTime = () => {
+    if (onUpdateTask) {
+      onUpdateTask(task, elapsedTime)
+      alert('作業時間を記録しました！')
+    }
+  }
 
   return (
     <div className="page-content">
       <button className="back-btn" onClick={onBack}>← 戻る</button>
-      
+
       <div className="task-detail-container">
         <h1 className="task-title">{task.title}</h1>
-        
+
         <div className="task-info-section">
           <div className="info-item">
             <span className="info-label">📅 期間:</span>
-            <span className="info-value">
-              {task.startDate} 〜 {task.endDate}
-            </span>
+            <span className="info-value">{task.startDate} 〜 {task.endDate}</span>
           </div>
-          
+
           {task.estimatedTime && (
             <div className="info-item">
               <span className="info-label">⏱ 予想時間:</span>
@@ -30,78 +60,74 @@ function TaskDetailPage({ task, onBack }) {
             <p className="task-detail-text">{task.detail}</p>
           </div>
         )}
+
+        {/* --- ストップウォッチ --- */}
+        <div className="stopwatch-section">
+          <h3>⏳ 作業時間を記録</h3>
+          <div className="time-display">{formatTime(elapsedTime)}</div>
+          <div className="stopwatch-buttons">
+            <button onClick={() => setIsRunning(true)} disabled={isRunning}>▶ 開始</button>
+            <button onClick={() => setIsRunning(false)} disabled={!isRunning}>⏸ 停止</button>
+            <button onClick={() => setElapsedTime(0)}>⏹ リセット</button>
+            <button onClick={handleSaveTime}>💾 記録する</button>
+          </div>
+        </div>
       </div>
 
       <style jsx>{`
-        .back-btn {
-          margin-bottom: 20px;
-          padding: 8px 16px;
-          border: 1px solid #d1d5db;
-          background: #3b82f6;
+        .stopwatch-section {
+          margin-top: 30px;
+          background: #f3f4f6;
+          padding: 16px;
+          border-radius: 10px;
+          text-align: center;
+        }
+
+        .time-display {
+          font-size: 2rem;
+          margin: 12px 0;
+          color: #111827;
+          font-weight: bold;
+        }
+
+        .stopwatch-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .stopwatch-buttons button {
+          padding: 6px 14px;
+          border: none;
           border-radius: 6px;
           cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .back-btn:hover {
-          background: blue;
-        }
-
-        .task-detail-container {
-          background: white;
-          border-radius: 12px;
-          padding: 20px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-title {
-          margin-bottom: 20px;
-          color: #111827;
-          font-size: 1.5rem;
-        }
-
-        .task-info-section {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-bottom: 20px;
-          padding-bottom: 20px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .info-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .info-label {
           font-weight: 500;
-          color: #6b7280;
-          min-width: 100px;
         }
 
-        .info-value {
-          color: #111827;
+        .stopwatch-buttons button:nth-child(1) {
+          background: #10b981;
+          color: white;
         }
 
-        .task-detail-section {
-          margin-top: 20px;
+        .stopwatch-buttons button:nth-child(2) {
+          background: #f59e0b;
+          color: white;
         }
 
-        .task-detail-section h3 {
-          margin-bottom: 12px;
-          color: #374151;
-          font-size: 1.1rem;
+        .stopwatch-buttons button:nth-child(3) {
+          background: #ef4444;
+          color: white;
         }
 
-        .task-detail-text {
-          background: #f9fafb;
-          padding: 12px;
-          border-radius: 6px;
-          color: #374151;
-          line-height: 1.6;
-          white-space: pre-wrap;
+        .stopwatch-buttons button:nth-child(4) {
+          background: #3b82f6;
+          color: white;
+        }
+
+        .stopwatch-buttons button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       `}</style>
     </div>
