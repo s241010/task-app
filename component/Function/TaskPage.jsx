@@ -6,11 +6,12 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
   const [taskInput, setTaskInput] = useState('')
   const [detail, setDetail] = useState('')
   const [estimatedTime, setEstimatedTime] = useState('')
+  const [priority, setPriority] = useState(3) // ★ 重要度：デフォルトは3（普通）
   const [startDate, setStartDate] = useState(selectedDate || null)
   const [endDate, setEndDate] = useState(selectedDate || null)
 
   const today = formatDateKey(new Date())
-  const todayTasks = tasks[today] || []
+  const todayTasks = (tasks[today] || []).sort((a, b) => b.priority - a.priority) // ★ 重要度高い順に並べる
 
   const handleAddClick = () => {
     setShowModal(true)
@@ -18,30 +19,17 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
 
   const handleConfirmAdd = () => {
     const title = taskInput.trim()
-    if (!title) {
-      alert('タスク名を入力してください')
-      return
-    }
-
-    if (!startDate || !endDate) {
-      alert('開始日と終了日を選択してください')
-      return
-    }
-
-    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-      alert('有効な日付を選択してください')
-      return
-    }
-
-    if (endDate < startDate) {
-      alert('終了日は開始日以降の日付を選んでください')
-      return
-    }
+    if (!title) return alert('タスク名を入力してください')
+    if (!startDate || !endDate) return alert('開始日と終了日を選択してください')
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()))
+      return alert('有効な日付を選択してください')
+    if (endDate < startDate) return alert('終了日は開始日以降の日付を選んでください')
 
     const newTask = {
       title,
       detail,
       estimatedTime,
+      priority: Number(priority), // ★ 追加
       startDate: formatDateKey(startDate),
       endDate: formatDateKey(endDate),
     }
@@ -55,6 +43,7 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
     setTaskInput('')
     setDetail('')
     setEstimatedTime('')
+    setPriority(3)
     setStartDate(selectedDate || null)
     setEndDate(selectedDate || null)
   }
@@ -65,6 +54,18 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
     const m = date.getMonth() + 1
     const d = date.getDate()
     return `${y}年${m}月${d}日`
+  }
+
+  // ★ 重要度に応じた色
+  const getPriorityColor = (level) => {
+    switch (level) {
+      case 1: return '#60a5fa' // 青
+      case 2: return '#34d399' // 緑
+      case 3: return '#facc15' // 黄
+      case 4: return '#fb923c' // オレンジ
+      case 5: return '#ef4444' // 赤
+      default: return '#d1d5db' // グレー
+    }
   }
 
   return (
@@ -87,9 +88,14 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
                 className="task-item-btn"
                 onClick={() => onTaskClick(task)}
               >
+                <div
+                  className="priority-bar"
+                  style={{ backgroundColor: getPriorityColor(task.priority) }}
+                ></div>
                 <div className="task-btn-content">
                   <strong>{task.title}</strong>
                   <div className="task-btn-meta">
+                    <span>重要度: {task.priority}</span>
                     {task.estimatedTime && <span>⏱ {task.estimatedTime}分</span>}
                     {task.startDate && task.endDate && (
                       <span>📆 {task.startDate}〜{task.endDate}</span>
@@ -102,6 +108,7 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
         )}
       </div>
 
+      {/* モーダル */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -125,15 +132,8 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
                 type="date"
                 value={startDate ? formatDateKey(startDate) : ''}
                 onChange={(e) => {
-                  if (!e.target.value) {
-                    setStartDate(null)
-                    return
-                  }
-                  const [year, month, day] = e.target.value.split('-').map(Number)
-                  const date = new Date(year, month - 1, day)
-                  if (!Number.isNaN(date.getTime())) {
-                    setStartDate(date)
-                  }
+                  const [y, m, d] = e.target.value.split('-').map(Number)
+                  setStartDate(new Date(y, m - 1, d))
                 }}
               />
 
@@ -142,17 +142,22 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
                 type="date"
                 value={endDate ? formatDateKey(endDate) : ''}
                 onChange={(e) => {
-                  if (!e.target.value) {
-                    setEndDate(null)
-                    return
-                  }
-                  const [year, month, day] = e.target.value.split('-').map(Number)
-                  const date = new Date(year, month - 1, day)
-                  if (!Number.isNaN(date.getTime())) {
-                    setEndDate(date)
-                  }
+                  const [y, m, d] = e.target.value.split('-').map(Number)
+                  setEndDate(new Date(y, m - 1, d))
                 }}
               />
+            </div>
+
+            {/* ★ 重要度選択 */}
+            <div className="priority-select">
+              <label>重要度：</label>
+              <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                <option value="1">1（低）</option>
+                <option value="2">2（やや低）</option>
+                <option value="3">3（普通）</option>
+                <option value="4">4（高）</option>
+                <option value="5">5（最重要）</option>
+              </select>
             </div>
 
             <input
@@ -163,8 +168,8 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
             />
 
             <div className="modal-buttons">
-              <button onClick={handleConfirmAdd}>追加</button>
               <button onClick={resetForm}>キャンセル</button>
+              <button onClick={handleConfirmAdd}>追加</button>
             </div>
           </div>
         </div>
@@ -193,10 +198,21 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
           border-radius: 8px;
           padding: 12px 16px;
           cursor: pointer;
+          display: flex;
+          align-items: stretch; /* ← stretchに変更 */
           transition: all 0.2s;
           text-align: left;
+          color: #000;
+          position: relative;
         }
-
+        
+        .priority-bar {
+          width: 8px;
+          flex-shrink: 0;
+          border-radius: 4px 0 0 4px;
+          margin-right: 12px;
+        }
+        
         .task-item-btn:hover {
           border-color: #3b82f6;
           background: #eff6ff;
@@ -215,6 +231,12 @@ function TaskPage({ selectedDate, tasks, onAddTask, onTaskClick }) {
           gap: 12px;
           font-size: 0.875rem;
           color: #6b7280;
+        }
+
+        .priority-select {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
         }
 
         .modal-overlay {
