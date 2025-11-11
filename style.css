@@ -1,14 +1,18 @@
+/* === 全体基本レイアウト === */
 body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
 }
 
 #root {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg-color);
 }
 
 .app-container {
@@ -17,8 +21,10 @@ body {
   height: 100vh;
   max-width: 600px;
   margin: 0 auto;
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, color 0.3s;
 }
 
 .main-content {
@@ -29,14 +35,18 @@ body {
 
 .page-content {
   padding: 20px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
 }
 
 .page-content h1 {
   margin-top: 0;
   font-size: 24px;
-  color: #333;
+  color: var(--text-color);
 }
 
+/* === ナビゲーションバー === */
 .navigation-bar {
   position: fixed;
   bottom: 0;
@@ -46,10 +56,11 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  background-color: white;
-  border-top: 1px solid #ddd;
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border-color);
   padding: 10px 0;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, border-color 0.3s;
 }
 
 .nav-button {
@@ -59,19 +70,20 @@ body {
   background: none;
   cursor: pointer;
   font-size: 14px;
-  color: #666;
+  color: var(--text-color);
   transition: all 0.3s;
 }
 
 .nav-button:hover {
-  color: #333;
+  color: var(--accent);
 }
 
 .nav-button.active {
-  color: #007bff;
+  color: var(--accent);
   font-weight: bold;
 }
 
+/* === カレンダー === */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -79,28 +91,33 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   text-align: center;
   padding: 8px;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 th {
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
   font-weight: bold;
+  color: var(--text-color);
 }
 
 td {
   height: 45px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  background: var(--card-bg);
+  color: var(--text-color);
 }
 
 td:hover {
-  background-color: #f0f0f0;
+  background-color: var(--accent);
+  color: #fff;
 }
 
 td.selected {
-  background-color: #cce5ff;
+  background-color: var(--accent);
+  color: #fff;
 }
 
 #calendarHeader {
@@ -109,8 +126,10 @@ td.selected {
   align-items: center;
   margin: 20px 0;
   padding: 10px;
-  background-color: #f8f9fa;
+  background-color: var(--card-bg);
   border-radius: 5px;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 #monthLabel {
@@ -118,30 +137,35 @@ td.selected {
   font-weight: bold;
 }
 
-input {
+/* === 入力とボタン === */
+input, textarea {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   font-size: 14px;
   box-sizing: border-box;
+  background: var(--card-bg);
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
 }
 
 button {
   padding: 10px 20px;
   margin: 5px;
-  background-color: #007bff;
+  background-color: var(--accent);
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #2563eb;
+  transform: translateY(-1px);
 }
 
 button:disabled {
@@ -149,152 +173,152 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* === 選択中や通知など === */
 .selected-date, .selected-date-info {
   padding: 10px;
   margin: 10px 0;
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
+  background-color: rgba(96, 165, 250, 0.1);
+  border-left: 4px solid var(--accent);
   border-radius: 3px;
 }
 
-.task-input-section, .chat-input-section {
-  margin: 20px 0;
-}
-
-.task-list-section, .chat-result-section {
-  margin-top: 30px;
-}
-
-.task-list-section h3, .chat-result-section h3 {
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.task-list-section ul {
+/* === タスク一覧（CalendarPage） === */
+.task-list {
   list-style: none;
   padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.task-list-section li {
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #f8f9fa;
-  border-left: 3px solid #28a745;
-  border-radius: 3px;
+.task-item {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--card-bg);
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
 }
 
-.empty-message {
-  color: #999;
+.priority-bar {
+  width: 8px;
+  min-width: 8px;
+  flex-shrink: 0;
+  border-radius: 6px 0 0 6px;
+  background-color: var(--border-color);
+}
+
+.task-item:hover {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateY(-1px);
+}
+
+.task-content {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+/* === TaskDetailPage（タイマー） === */
+.stopwatch-section {
+  margin-top: 30px;
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: 10px;
   text-align: center;
-  padding: 20px;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
 }
 
-.ai-response {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 5px;
-  margin-top: 20px;
+.time-display {
+  font-size: 2rem;
+  margin: 12px 0;
+  color: var(--text-color);
+  font-weight: bold;
 }
 
-.ai-response h3 {
-  margin-top: 0;
-  color: #007bff;
+.stopwatch-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.ai-response p {
-  white-space: pre-wrap;
-  line-height: 1.6;
+.stopwatch-buttons button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
 }
 
-.groupwork-section, .settings-section {
-  margin-top: 20px;
+.stopwatch-buttons button:nth-child(1) {
+  background: #10b981;
 }
 
-.feature-list, .setting-item {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 5px;
-  margin: 15px 0;
+.stopwatch-buttons button:nth-child(2) {
+  background: #f59e0b;
 }
 
-.feature-list ul, .setting-item ul {
-  margin-top: 10px;
-  padding-left: 20px;
+.stopwatch-buttons button:nth-child(3) {
+  background: #ef4444;
 }
 
-.feature-list li, .setting-item li {
-  margin: 8px 0;
-  color: #666;
+.stopwatch-buttons button:nth-child(4) {
+  background: var(--accent);
 }
 
+.stopwatch-buttons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === タスク追加ボタンなど === */
 .add-task-btn {
-  background-color: #4a90e2;
+  background-color: var(--accent);
   color: white;
   border: none;
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 16px;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .add-task-btn:hover {
-  background-color: #357abd;
+  background-color: #2563eb;
+  transform: translateY(-1px);
 }
 
-.task-form-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* === テーマ変数 === */
+:root {
+  --bg-color: #f9fafb;
+  --text-color: #111;
+  --card-bg: #fff;
+  --border-color: #e5e7eb;
+  --accent: #3b82f6;
 }
 
-.task-form-content {
-  background-color: white;
-  padding: 24px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-}
-
-.task-form-content input,
-.task-form-content textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.task-form-content label {
-  font-weight: bold;
-  display: block;
-  margin-top: 10px;
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.form-buttons button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.form-buttons button:first-child {
-  background-color: #4caf50;
-  color: white;
-}
-
-.form-buttons button:last-child {
-  background-color: #f44336;
-  color: white;
+[data-theme='dark'] {
+  --bg-color: #111827;
+  --text-color: #f9fafb;
+  --card-bg: #1f2937;
+  --border-color: #374151;
+  --accent: #60a5fa;
 }
